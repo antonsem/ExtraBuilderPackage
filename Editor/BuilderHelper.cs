@@ -1,5 +1,11 @@
-﻿using UnityEditor;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace ExtraTools.ExtraBuilder
 {
@@ -87,6 +93,70 @@ namespace ExtraTools.ExtraBuilder
             Selection.activeObject = obj;
             Selection.selectionChanged.Invoke();
             EditorGUIUtility.PingObject(obj);
+        }
+        
+        /// <summary>
+        /// Switches build group and the build target.
+        /// </summary>
+        /// <returns>Report of the process</returns>
+        public static string SwitchBuildTarget(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            StringBuilder report = new StringBuilder($"---Switching build target to {buildTarget}\n");
+
+            bool switched = EditorUserBuildSettings.SwitchActiveBuildTarget(buildTargetGroup, buildTarget);
+
+            stopwatch.Stop();
+            report.Append($"---Build target {(switched ? "switched" : "failed to switch")} " +
+                          $"at {DateTime.Now.ToString()} in {stopwatch.ElapsedMilliseconds / 1000}s");
+
+            if (!switched)
+            {
+                Debug.LogError($"Couldn't switch back to the original build target '{buildTarget}'");
+            }
+
+            return report.ToString();
+        }
+        
+        /// <summary>
+        /// Saves a report.
+        /// </summary>
+        /// <param name="report">Report to save.</param>
+        /// <param name="path">File path for the report. Asks in a window if null.</param>
+        [ContextMenu("Save Report")]
+        public static void SaveReport(string report, string path = "")
+        {
+            if (string.IsNullOrEmpty(report))
+            {
+                Debug.Log("Report is empty, nothing to save");
+                return;
+            }
+
+            var fileName = !string.IsNullOrEmpty(path)
+                ? path
+                : EditorUtility.SaveFilePanel("Save report", $"{Application.dataPath}/Build", "Report", "txt");
+
+            if (string.IsNullOrEmpty(fileName)) return;
+
+            try
+            {
+                File.WriteAllText(fileName, report);
+                Debug.Log($"Report saved to {fileName}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Couldn't save a report to {fileName}. ERROR:\n{e}");
+            }
+        }
+        
+        /// <summary>
+        /// Get a path from the folder panel.
+        /// </summary>
+        public static string GetDeployPath()
+        {
+            return EditorUtility.OpenFolderPanel("Select relevant folder", $"{Application.dataPath}/Build",
+                Application.productName);
         }
     }
 }
