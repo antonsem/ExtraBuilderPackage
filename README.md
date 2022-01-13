@@ -19,9 +19,13 @@ For the package to compile successfully the csc.rsp file needs to be created
 as described in the Requirements part. Butler should be installed only to
 push to Itch using the PushToItch.bat file.
 
-Once the package is compile two scriptable objects can be created: 
+Once the package is compiled two scriptable objects can be created: 
 BuildSettings and Builder. Both can be found under the Create/ExtraTools 
 menu.
+
+A PushToItch.bat file can be created from a BuildSettings object which doesn't have one already.
+All BuildSettings objects can refer to a single bat file. No need to create a bat file for each one.
+
 
 ### BuildSettings
 To make a build create a BuildSettings object. To push to itch use 

@@ -158,5 +158,31 @@ namespace ExtraTools.ExtraBuilder
             return EditorUtility.OpenFolderPanel("Select relevant folder", $"{Application.dataPath}/Build",
                 Application.productName);
         }
+        
+        /// <summary>
+        /// Creates a default bat file to push the zip file to itch
+        /// </summary>
+        public static DefaultAsset CreateDefaultBatFile()
+        {
+            var path = EditorUtility.SaveFilePanel("Save bat file", Application.dataPath, "PushToItch", "bat");
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
+            
+            File.WriteAllText(path, "butler push %1 %2/%3:%4");
+
+            AssetDatabase.Refresh();
+
+            if (!path.Contains(Application.dataPath))
+            {
+                return null;
+            }
+            
+            var count = Application.dataPath.Length;
+            path = path.Remove(0, count);
+            return AssetDatabase.LoadAssetAtPath<DefaultAsset>($"Assets{path}");
+        }
     }
 }

@@ -73,6 +73,10 @@ namespace ExtraTools.ExtraBuilder
 
                     DrawHelp(batchFile as DefaultAsset);
                 }
+                else if(GUILayout.Button("Create default PushToItch.bat file"))
+                {
+                    target.GetType().GetField("batchFile", _flags).SetValue(target, BuilderHelper.CreateDefaultBatFile());
+                }
             }
 
             EditorGUILayout.Space(25);
@@ -157,7 +161,6 @@ namespace ExtraTools.ExtraBuilder
         /// <returns>Batch script with inserted arguments.</returns>
         private string CompileBatFile(Object batchFile, IReadOnlyList<string> args)
         {
-            
             var folders = Application.dataPath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
             folders.RemoveAt(folders.Count - 1);
             var assetsPath = string.Join(Path.DirectorySeparatorChar.ToString(), folders);
