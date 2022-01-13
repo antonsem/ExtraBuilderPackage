@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -156,9 +157,12 @@ namespace ExtraTools.ExtraBuilder
         /// <returns>Batch script with inserted arguments.</returns>
         private string CompileBatFile(Object batchFile, IReadOnlyList<string> args)
         {
-            var filePath = AssetDatabase.GetAssetPath(batchFile);
-            filePath = filePath.Remove(0, 6);
-            filePath = $"{Application.dataPath}/{filePath}";
+            
+            var folders = Application.dataPath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
+            folders.RemoveAt(folders.Count - 1);
+            var assetsPath = string.Join(Path.DirectorySeparatorChar.ToString(), folders);
+            var batchFilePath = AssetDatabase.GetAssetPath(batchFile);
+            var filePath = $"{assetsPath}/{batchFilePath}";
             var batch = File.ReadAllText(filePath);
             var parsedArguments = (target as BuildSettings).ParseArguments(args);
 

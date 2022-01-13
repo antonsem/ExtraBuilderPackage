@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 //https://forum.unity.com/threads/c-compression-zip-missing.577492/
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
@@ -247,9 +248,12 @@ namespace ExtraTools.ExtraBuilder
         {
             try
             {
-                if (batchFile.Split('/')[0] == "Assets")
-                    batchFile = batchFile.Remove(0, 6);
-                batchFile = $"{Application.dataPath}/{batchFile}";
+                var separator = Path.DirectorySeparatorChar;
+                var folders = Application.dataPath.Split(separator, Path.AltDirectorySeparatorChar).ToList();
+                folders.RemoveAt(folders.Count - 1);
+                var assetsPath = string.Join(separator.ToString(), folders);
+                
+                batchFile = $"{assetsPath}/{batchFile}".Replace(separator, Path.AltDirectorySeparatorChar);
 
                 var args = string.Join(" ", arguments);
                 Process process = Process.Start(batchFile, args);
@@ -278,7 +282,7 @@ namespace ExtraTools.ExtraBuilder
             }
             catch (Exception e)
             {
-                Debug.LogError($"Error while executing '{batchFile}'! ERROR:\n{e}.");
+                Debug.LogError($"Error while executing '{batchFile}'! ERROR:\n<color=red>{e}</color>.");
                 return false;
             }
 

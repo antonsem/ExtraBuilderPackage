@@ -17,7 +17,7 @@ namespace ExtraTools.ExtraBuilder
     public class Builder : ScriptableObject
     {
         #pragma warning disable 0414
-        [HideInInspector, SerializeField] private List<BuildSettings> buildSettings;
+        [HideInInspector, SerializeField] private List<BuildSettings> buildSettings = new List<BuildSettings>();
         [HideInInspector, SerializeField] private bool keepCurrentBuildTarget = false;
         [HideInInspector, SerializeField] private bool automaticallySaveReport = true;
 
