@@ -19,7 +19,6 @@ namespace ExtraTools.ExtraBuilder
         private SerializedProperty _createZipFile;
         private SerializedProperty _useBatchFile;
         private SerializedProperty _zipFile;
-        private SerializedProperty _buildDirectory;
         private SerializedProperty _keepBuildTarget;
         private SerializedProperty _automaticallySaveReport;
         private SerializedProperty _report;
@@ -35,7 +34,6 @@ namespace ExtraTools.ExtraBuilder
             _useBatchFile = serializedObject.FindProperty("useBatchFile");
             _zipFile = serializedObject.FindProperty("zipFile");
             _keepBuildTarget = serializedObject.FindProperty("keepCurrentBuildTarget");
-            _buildDirectory = serializedObject.FindProperty("buildDirectory");
             _automaticallySaveReport = serializedObject.FindProperty("automaticallySaveReport");
             _report = serializedObject.FindProperty("report");
         }
@@ -49,12 +47,7 @@ namespace ExtraTools.ExtraBuilder
 
             if (_createZipFile.boolValue)
             {
-                if (string.IsNullOrEmpty(_zipFile.stringValue))
-                {
-                    _zipFile.stringValue = "FullPath/ExampleBuild.zip";
-                }
-                
-                EditorGUILayout.LabelField($"Last zip file was at '{_zipFile.stringValue}'");
+                CreateZipFile();
             }
 
             EditorGUILayout.Space(25);
@@ -63,20 +56,7 @@ namespace ExtraTools.ExtraBuilder
 
             if (_useBatchFile.boolValue)
             {
-                EditorGUILayout.PropertyField(_batchFile);
-
-                var batchFile = target.GetType().GetField("batchFile", _flags).GetValue(target);
-
-                if (batchFile as DefaultAsset != null)
-                {
-                    EditorGUILayout.PropertyField(_batchArguments);
-
-                    DrawHelp(batchFile as DefaultAsset);
-                }
-                else if(GUILayout.Button("Create default PushToItch.bat file"))
-                {
-                    target.GetType().GetField("batchFile", _flags).SetValue(target, BuilderHelper.CreateDefaultBatFile());
-                }
+                UseBatchFile();
             }
 
             EditorGUILayout.Space(25);
@@ -88,20 +68,7 @@ namespace ExtraTools.ExtraBuilder
 
             if (GUILayout.Button("Build"))
             {
-                var rep = (target as BuildSettings).Build(keepBuildTarget:_keepBuildTarget.boolValue);
-                // At some point during the build process the scriptable object deserializes, and values
-                // retrieved with FindProperty becoming stale. So we need to get them in some other way
-                var reportField = target.GetType().GetField("automaticallySaveReport", _flags);
-                var autoSave = (bool)reportField.GetValue(target);
-
-                if (!autoSave || string.IsNullOrEmpty(rep))
-                {
-                    return;
-                }
-                
-                var deployField = target.GetType().GetField("buildDirectory", _flags);
-                var deployPath = (string)deployField.GetValue(target);
-                BuilderHelper.SaveReport(rep, $"{deployPath}/Report.txt");
+                Build();
                 return;
             }
 
@@ -114,6 +81,52 @@ namespace ExtraTools.ExtraBuilder
             {
                 BuilderHelper.SaveReport(_report.stringValue);
             }
+        }
+
+        private void Build()
+        {
+            var rep = (target as BuildSettings).Build(keepBuildTarget: _keepBuildTarget.boolValue);
+            // At some point during the build process the scriptable object deserializes, and values
+            // retrieved with FindProperty becoming stale. So we need to get them in some other way
+            var reportField = target.GetType().GetField("automaticallySaveReport", _flags);
+            var autoSave = (bool)reportField.GetValue(target);
+
+            if (!autoSave || string.IsNullOrEmpty(rep))
+            {
+                return;
+            }
+
+            var deployField = target.GetType().GetField("buildDirectory", _flags);
+            var deployPath = (string)deployField.GetValue(target);
+            BuilderHelper.SaveReport(rep, $"{deployPath}/Report.txt");
+        }
+
+        private void UseBatchFile()
+        {
+            EditorGUILayout.PropertyField(_batchFile);
+
+            var batchFile = target.GetType().GetField("batchFile", _flags).GetValue(target);
+
+            if (batchFile as DefaultAsset != null)
+            {
+                EditorGUILayout.PropertyField(_batchArguments);
+
+                DrawHelp(batchFile as DefaultAsset);
+            }
+            else if (GUILayout.Button("Create default PushToItch.bat file"))
+            {
+                target.GetType().GetField("batchFile", _flags).SetValue(target, BuilderHelper.CreateDefaultBatFile());
+            }
+        }
+
+        private void CreateZipFile()
+        {
+            if (string.IsNullOrEmpty(_zipFile.stringValue))
+            {
+                _zipFile.stringValue = "FullPath/ExampleBuild.zip";
+            }
+
+            EditorGUILayout.LabelField($"Last zip file was at '{_zipFile.stringValue}'");
         }
 
         /// <summary>

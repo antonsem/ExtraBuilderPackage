@@ -17,12 +17,12 @@ namespace ExtraTools.ExtraBuilder
     public class Builder : ScriptableObject
     {
         #pragma warning disable 0414
-        [HideInInspector, SerializeField] private List<BuildSettings> buildSettings = new List<BuildSettings>();
-        [HideInInspector, SerializeField] private bool keepCurrentBuildTarget = false;
-        [HideInInspector, SerializeField] private bool automaticallySaveReport = true;
+        [SerializeField] private List<BuildSettings> buildSettings = new();
+        [SerializeField] private bool keepCurrentBuildTarget = false;
+        [SerializeField] private bool automaticallySaveReport = true;
 
-        [HideInInspector, SerializeField] private string deployPath;
-        [HideInInspector, SerializeField] private string report;
+        [SerializeField] private string deployPath;
+        [SerializeField] private string report;
         #pragma warning restore 0414
 
         /// <summary>

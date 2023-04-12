@@ -179,7 +179,9 @@ namespace ExtraTools.ExtraBuilder
 
                 var buildOptions = new BuildPlayerOptions
                 {
-                    scenes = new string[scenes.Count]
+                    scenes = new string[scenes.Count],
+                    locationPathName = $"{directory}/{buildName}",
+                    target = buildTarget
                 };
 
                 for (var i = 0; i < scenes.Count; i++)
@@ -187,12 +189,17 @@ namespace ExtraTools.ExtraBuilder
                     buildOptions.scenes[i] = AssetDatabase.GetAssetPath(scenes[i]);
                 }
 
-                buildOptions.target = buildTarget;
-                buildOptions.locationPathName = $"{directory}/{buildName}";
+                try
+                {
+                    var report = BuildPipeline.BuildPlayer(buildOptions);
 
-                var report = BuildPipeline.BuildPlayer(buildOptions);
-
-                if (report.summary.result == BuildResult.Failed)
+                    if (report.summary.result == BuildResult.Failed)
+                    {
+                        Debug.LogError($"Failed to build '{buildName}' to '{directory}'.");
+                        return false;
+                    }
+                }
+                catch (Exception e)
                 {
                     Debug.LogError($"Failed to build '{buildName}' to '{directory}'.");
                     return false;
