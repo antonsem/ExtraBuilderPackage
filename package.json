@@ -1,7 +1,7 @@
 {
   "name": "com.antonsem.extratools.builder",
   "displayName": "Extra Tools Builder",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "unity": "2020.3",
   "documentationUrl": "https://github.com/antonsem/ExtraBuilderPackage",
   "description": "A package to build projects and upload to itch with a single click. \n\nTo find out more, click the \"View Documentation\" link.",
