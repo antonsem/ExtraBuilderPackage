@@ -39,7 +39,8 @@ namespace ExtraTools.ExtraBuilder
 
             StringBuilder newReport = new StringBuilder($"\n----- Build All process started at {DateTime.Now.ToString()}");
             
-            foreach (var build in buildSettings)
+            var tempBuildSettings = buildSettings.ToArray();
+            foreach (var build in tempBuildSettings)
             {
                 var rep = build.Build(deployPath);
                 newReport.Append($"\n\n{rep}");
